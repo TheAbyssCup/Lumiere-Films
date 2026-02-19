@@ -173,5 +173,52 @@ public class StaffManager {
             return;
         }
 
+        System.out.print("Search: ");
+        String searchInput = scanner.nextLine().toLowerCase();
+        if (searchInput.trim().length() == 0)
+        {
+            System.out.println("Invalid search input");
+            return;
+        }
+
+        System.out.println("\nID | Name                    | Role");
+        System.out.println("----+-------------------------+-------------------------");
+
+        for (int i = 0; i < StaffMember.staffSize; i++)
+        {
+            boolean foundInNames = isSubstring(staffMembers[i].name.toLowerCase(), searchInput);
+            boolean foundInRoles = isSubstring(staffMembers[i].role.toLowerCase(), searchInput);
+
+            if (foundInNames || foundInRoles)
+            {
+                System.out.printf("%-3d | %-23s | %-23s\n",
+                        (i + 1), staffMembers[i].name, staffMembers[i].role);
+            }
+        }
+    }
+    boolean isSubstring(String target, String searchInput)
+    {
+        if(searchInput.length() > target.length())
+        {
+            return false;
+        }
+
+        for(int i = 0; i <= target.length() - searchInput.length(); i++)
+        {
+            boolean isMatching = true;
+            for (int j = 0; j < searchInput.length(); j++)
+            {
+                if (target.toCharArray()[i + j] != searchInput.toCharArray()[j])
+                {
+                    isMatching = false;
+                    break;
+                }
+            }
+            if (isMatching)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }
