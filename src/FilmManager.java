@@ -1,13 +1,14 @@
 import java.util.Scanner;
+import java.util.Set;
+import java.util.HashSet;
 
 public class FilmManager {
     Scanner scanner = new Scanner(System.in);
 
-    public void showSubMenu()
-    {
+    public void showSubMenu() {
         Films.initializeFilms();
         do {
-            System.out.println("———————————————————"+"\n\tFilm Catalogue submenu:");
+            System.out.println("———————————————————" + "\n\tFilm Catalogue submenu:");
             System.out.println("1. View All Films");
             System.out.println("2. Add Film");
             System.out.println("3. Edit Film");
@@ -18,10 +19,9 @@ public class FilmManager {
             System.out.print("———————————————————");
         } while (selectSubMenu());
     }
-    boolean selectSubMenu()
-    {
-        switch (MyUtils.selectChoice(7))
-        {
+
+    boolean selectSubMenu() {
+        switch (MyUtils.selectChoice(7)) {
             case 1:
                 viewAllFilms();
                 break;
@@ -46,67 +46,53 @@ public class FilmManager {
         return true;
     }
 
-    void viewAllFilms()
-    {
+    void viewAllFilms() {
         {
-        System.out.println("———————————————————"+"\nAll Films");
-        if(Films.filmCount == 0)
-        {
-            System.out.println("No films found.");
-        }
-        else
-        {
-            System.out.println("\nNo. | Name                    | Genre                     | Release date");
-            System.out.println("----+-------------------------+-------------------------+-------------------------");
-            for (int i = 0; i < Films.filmCount; i++) {
-                if(Films.films[i] != null)
-                {
-                    System.out.printf("%-3d | %-23s | %-23s | %-23s\n",
-                            (i + 1), Films.films[i].name, Films.films[i].genre, Films.films[i].dateOfRelease
-                    );
+            System.out.println("———————————————————" + "\nAll Films");
+            if (Films.filmCount == 0) {
+                System.out.println("No films found.");
+            } else {
+                System.out.println("\nNo. | Name                    | Genre                     | Release date");
+                System.out.println("----+-------------------------+-------------------------+-------------------------");
+                for (int i = 0; i < Films.filmCount; i++) {
+                    if (Films.films[i] != null) {
+                        System.out.printf("%-3d | %-23s | %-23s | %-23s\n",
+                                (i + 1), Films.films[i].name, Films.films[i].genre, Films.films[i].dateOfRelease
+                        );
+                    }
                 }
             }
         }
     }
-    }
 
-    void addFilm()
-    {
+    void addFilm() {
         if (Films.filmCount == 100) {
             System.out.println("Your films is full");
-        }
-        else
-        {
+        } else {
             System.out.print("Add film's name (or type X to cancel): ");
             String newFilmName = scanner.nextLine();
-            if (newFilmName.equalsIgnoreCase("x"))
-            {
+            if (newFilmName.equalsIgnoreCase("x")) {
                 return;
             }
 
             System.out.print("Add film's genre (or type X to cancel): ");
             String newFilmGenre = scanner.nextLine();
-            if (newFilmName.equalsIgnoreCase("x"))
-            {
+            if (newFilmName.equalsIgnoreCase("x")) {
                 return;
             }
 
             System.out.print("Add film's release date (YYYY-MM-DD) or type X to cancel: ");
             String newFilmReleaseDate = scanner.nextLine();
-            if (newFilmName.equalsIgnoreCase("x"))
-            {
+            if (newFilmName.equalsIgnoreCase("x")) {
                 return;
             }
 
             System.out.print("Are you sure? (y/n): ");
             String choiceValidation = scanner.nextLine();
-            if (choiceValidation.equalsIgnoreCase("y") || choiceValidation.equalsIgnoreCase("yes"))
-            {
-                Films.addFilm(newFilmName, newFilmGenre, newFilmGenre);
+            if (choiceValidation.equalsIgnoreCase("y") || choiceValidation.equalsIgnoreCase("yes")) {
+                Films.addFilm(newFilmName, newFilmGenre, newFilmReleaseDate);
                 System.out.println("Film added successfully");
-            }
-            else
-            {
+            } else {
                 System.out.println("Invalid choice or user moved back");
             }
 
@@ -114,8 +100,7 @@ public class FilmManager {
         }
     }
 
-    void editFilm()
-     {
+    void editFilm() {
         if (Films.filmCount == 0) {
             System.out.println("No films found to EDIT");
             return;
@@ -138,45 +123,36 @@ public class FilmManager {
         System.out.print("Are you sure? (y/n): ");
         String choiceValidation = scanner.nextLine();
 
-        if (choiceValidation.equalsIgnoreCase("y") || choiceValidation.equalsIgnoreCase("yes"))
-        {
+        if (choiceValidation.equalsIgnoreCase("y") || choiceValidation.equalsIgnoreCase("yes")) {
             Films.editFilm(filmIndexToEdit, editedName, editedGenre, editedReleaseDate);
             System.out.println("Film edited successfully!");
 
-        }
-        else
-        {
+        } else {
             System.out.println("Invalid choice or user moved back");
 
         }
 
     }
 
-    void deleteFilm()
-    {
+    void deleteFilm() {
         viewAllFilms();
         int filmIndex = MyUtils.selectChoice(Films.filmCount) - 1;
 
         System.out.print("Are you sure? (y/n): ");
         String choiceValidation = scanner.nextLine();
-        if (choiceValidation.equalsIgnoreCase("y") || choiceValidation.equalsIgnoreCase("yes"))
-        {
+        if (choiceValidation.equalsIgnoreCase("y") || choiceValidation.equalsIgnoreCase("yes")) {
             Films.deleteFilm(filmIndex);
 
             System.out.println("Film removed successfully!");
 
-        }
-        else
-        {
+        } else {
             System.out.println("Invalid choice or user moved back");
 
         }
     }
 
-    void sortFilms()
-    {
-        if (Films.filmCount == 0)
-        {
+    void sortFilms() {
+        if (Films.filmCount == 0) {
             System.out.println("No films found.");
             return;
         }
@@ -186,32 +162,26 @@ public class FilmManager {
         System.out.println("2. Date (Chronological)");
         System.out.print("Enter choice (1 or 2): ");
 
-        Films[] sortedFilms = null;
+        Films[] sortedFilms;
 
         if (scanner.hasNextInt()) {
             int sortChoice = scanner.nextInt();
             if (sortChoice == 1 || sortChoice == 2) {
                 sortedFilms = Films.sortFilms(sortChoice);
-            }
-            else
-            {
+            } else {
                 System.out.println("Invalid option! ");
                 return;
             }
-        }
-        else
-        {
+        } else {
             System.out.println("That's not a number.");
             scanner.next();
             return;
 
         }
 
-        if(sortedFilms == null)
-        {
+        if (sortedFilms == null) {
             System.out.println("No films found.");
-        }
-        else {
+        } else {
             System.out.println("\nNo. | Name                    | Genre                     | Release date");
             System.out.println("----+-------------------------+-------------------------+-------------------------");
             for (int i = 0; i < Films.filmCount; i++) {
@@ -224,9 +194,45 @@ public class FilmManager {
         }
     }
 
-    void filterFilms()
-    {
-        return;
+    void filterFilms() {
+        Set<String> uniqueGenres = new HashSet<>();
+
+        for (int i = 0; i < Films.filmCount; i++) {
+            uniqueGenres.add(Films.films[i].genre);
+        }
+
+        String[] genres = uniqueGenres.toArray(new String[0]);
+
+
+        System.out.println("Choose a value to sort by genre:");
+
+        int counter = 1;
+        for (String genre: genres) {
+            System.out.println(counter + ". " + genre);
+            counter++;
+        }
+        System.out.print("Enter your choice (a number): ");
+
+        int option = scanner.nextInt();
+        String value = genres[option - 1];
+
+
+        Films[] filteredFilms = Films.filterFilms(value);
+        if (filteredFilms == null) {
+            System.out.println("No films found.");
+        } else {
+            System.out.println("\nNo. | Name                    | Genre                     | Release date");
+            System.out.println("----+-------------------------+-------------------------+-------------------------");
+            for (int i = 0; i < filteredFilms.length; i++) {
+                if (filteredFilms[i] != null) {
+                    System.out.printf("%-3d | %-23s | %-23s | %-23s\n",
+                            (i + 1), filteredFilms[i].name, filteredFilms[i].genre, filteredFilms[i].dateOfRelease
+                    );
+                }
+            }
+        }
+
+
     }
 
 }

@@ -25,9 +25,9 @@ public class Films {
         filmCount++;
         films[filmCount] = new Films("Pele", "Fantasy", "1998-09-07");
         filmCount++;
-        films[filmCount] = new Films("aaaaaabb", "Fantasy", "1994-06-07");
+        films[filmCount] = new Films("aaaaaabb", "Comedy", "1994-06-07");
         filmCount++;
-        films[filmCount] = new Films("bbbb", "Fantasy", "1993-09-07");
+        films[filmCount] = new Films("bbbb", "Comedy", "1993-09-07");
         filmCount++;
     }
 
@@ -65,11 +65,36 @@ public class Films {
         if (sortChoice == 1) {
             Arrays.sort(sortedFilms, Comparator.comparing(film -> film.name, String.CASE_INSENSITIVE_ORDER));
         } else if (sortChoice == 2) {
-            Arrays.sort(sortedFilms, Comparator.comparing(film -> LocalDate.parse(film.dateOfRelease)));
+            Arrays.sort(sortedFilms, Comparator.comparing((Films film) -> LocalDate.parse(film.dateOfRelease)).reversed());
+
 
         }
         return sortedFilms;
     }
 
+    static Films[] filterFilms(String value) {
+        if (filmCount == 0) return films;
+
+        int matchCount = 0;
+        value = value.trim().toLowerCase();
+
+        for (int i = 0; i < filmCount; i++) {
+            if (films[i].genre.equalsIgnoreCase(value)){
+                matchCount++;
+            }
+        }
+
+        Films[] filteredFilms = new Films[matchCount];
+
+        int currentIndex = 0;
+        for (int i = 0; i < filmCount; i++){
+            if (films[i].genre.equalsIgnoreCase(value)) {
+                filteredFilms[currentIndex] = films[i];
+                currentIndex++;
+            }
+        }
+
+        return filteredFilms;
+    }
 
 }
