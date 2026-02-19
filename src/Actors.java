@@ -22,19 +22,47 @@ public class Actors {
         if (actorCount == 0) {
             System.out.println("Actor list is empty.");
         }
+        System.out.println("\nID  | Name                    | Role");
+        System.out.println("————+—————————————————————————+—————————————————————————");
         for (int i = 0; i < actorCount; i++) {
-            System.out.println(i+1 + ". " + actorMembers[i][0] + "       " + actorMembers[i][1]);
+            System.out.printf(
+                    "%-3d | %-23s | %-23s\n",
+                    (i + 1), actorMembers[i][0], actorMembers[i][1]
+            );
         }
     }
-    public void addActor(String actorName, String actorRole) {
+    public void addActor() {
+        Scanner scanner = new Scanner(System.in);
         if (actorCount < actorMembers.length) {
-            actorMembers[actorCount][0] = actorName;
-            actorMembers[actorCount][1] = actorRole;
-            actorCount++;
-            System.out.println("Actor " + actorName + " has been added.");
+            System.out.print("Add actors's name (or type X to cancel): ");
+            String actorName = scanner.nextLine();
+            if (actorName.equalsIgnoreCase("x"))
+            {
+                return;
+            }
+            System.out.print("Add actor's role (or type X to cancel): ");
+            String actorRole = scanner.nextLine();
+            if (actorRole.equalsIgnoreCase("x"))
+            {
+                return;
+            }
+            System.out.print("Are you sure? (y/n): ");
+            String choiceValidation = scanner.nextLine();
+            if (choiceValidation.equalsIgnoreCase("y") || choiceValidation.equalsIgnoreCase("yes"))
+            {
+                actorMembers[actorCount][0] = actorName;
+                actorMembers[actorCount][1] = actorRole;
+                actorCount++;
+                System.out.println("Actor " + actorName + " has been added.");
+            } else {
+                System.out.println("Invalid choice or user moved back");
+            }
         }
         else {
             System.out.println("Actor list is full.");
         }
+    }
+    public int getActorCount() {
+        return actorCount;
     }
 }

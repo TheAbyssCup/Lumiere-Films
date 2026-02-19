@@ -17,19 +17,13 @@ public class ActorManager {
     }
     boolean selectSubMenu()
     {
-        Scanner scanner = new Scanner(System.in);
         switch (MyUtils.selectChoice(4))
         {
             case 1:
                 actors.viewActors();
                 break;
             case 2:
-                System.out.println("Please enter actor name: ");
-                String actorName = scanner.nextLine();
-                System.out.println("Please enter actor role: ");
-                String actorRole = scanner.nextLine();
-
-                actors.addActor(actorName, actorRole);
+                actors.addActor();
                 break;
             case 3:
                 showPortfolioMenu();
@@ -51,25 +45,16 @@ public class ActorManager {
     }
     boolean selectPortfolioMenu()
     {
-        Scanner scanner = new Scanner(System.in);
         switch (MyUtils.selectChoice(4))
         {
             case 1:
                 portfolio.listPortfolioItems(askActorNum());
                 break;
             case 2:
-                System.out.println("Please enter actor's project: ");
-                String actorProject = scanner.nextLine();
-                System.out.println("Please enter actor's role in that project: ");
-                String actorRole = scanner.nextLine();
-                System.out.println("Please enter actor's project year: ");
-                String actorProjectYear = scanner.nextLine();
-                portfolio.addPortfolioItems(askActorNum(), actorProject, actorRole, actorProjectYear);
+                portfolio.addPortfolioItems(askActorNum());
                 break;
             case 3:
-                System.out.println("Please enter actor's portfolio item number to remove: ");
-                int portfolioItemNumber = scanner.nextInt();
-                portfolio.removePortfolioItems(askActorNum(), portfolioItemNumber);
+                portfolio.removePortfolioItems(askActorNum());
                 break;
             case 4:
                 return false;
@@ -77,9 +62,8 @@ public class ActorManager {
         return true;
     }
     int askActorNum() {
-        Scanner scanner = new Scanner(System.in);
         System.out.println("Please enter actor number: ");
-        int actorNum = scanner.nextInt();
-        return actorNum;
+        actors.viewActors();
+        return MyUtils.selectChoice(actors.getActorCount());
     }
 }
