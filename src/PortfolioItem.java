@@ -65,7 +65,6 @@ public class PortfolioItem {
             System.out.println("Please enter actor's portfolio item number to remove: ");
             listPortfolioItems(actorNum);
             int portfolioItemNumber = MyUtils.selectChoice(counts[actorNum]);
-            System.out.println(actorNum);
             for (int i = portfolioItemNumber; i < counts[actorNum]; i++) {
                 portfolioItems[actorNum][i][0] = portfolioItems[actorNum][i+1][0];
                 portfolioItems[actorNum][i][1] = portfolioItems[actorNum][i+1][1];
