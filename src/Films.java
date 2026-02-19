@@ -65,11 +65,14 @@ public class Films {
         if (sortChoice == 1) {
             Arrays.sort(sortedFilms, Comparator.comparing(film -> film.name, String.CASE_INSENSITIVE_ORDER));
         } else if (sortChoice == 2) {
-            Arrays.sort(sortedFilms, Comparator.comparing(film -> LocalDate.parse(film.dateOfRelease)));
+            Arrays.sort(sortedFilms, Comparator.comparing((Films film) -> LocalDate.parse(film.dateOfRelease)).reversed());
+
 
         }
         return sortedFilms;
     }
+
+
 
 
 }
