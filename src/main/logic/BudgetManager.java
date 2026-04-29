@@ -1,4 +1,6 @@
-public class Budget {
+package main.logic;
+
+public class BudgetManager {
     public void showSubMenu()
     {
         do {

@@ -1,10 +1,20 @@
+package main;
+
+import main.logic.ActorManager;
+import main.logic.CastingManager;
+import main.logic.FilmManager;
+import main.logic.StaffManager;
+import main.logic.BudgetManager;
+import main.logic.MyUtils;
+
+
 public class Main {
     StaffManager staff = new StaffManager();
     ActorManager actor = new ActorManager();
     FilmManager film = new FilmManager();
-    Budget budget = new Budget();
+    BudgetManager budget = new BudgetManager();
 
-    public static void main() {
+    public static void main(String[] args) {
         Main main = new Main();
         do {
             main.displayMainMenu();

@@ -1,15 +1,17 @@
+package model.media;
+
 import java.util.Arrays;
 import java.util.Comparator;
 import java.time.LocalDate;
 
 public class Films {
-    String name;
-    String genre;
-    String dateOfRelease;
+    public String name;
+    public String genre;
+    public String dateOfRelease;
 
-    static int filmCount = 0;
+    public static int filmCount = 0;
 
-    static Films[] films = new Films[100];
+    public static Films[] films = new Films[100];
 
     public Films(String name, String genre, String dateOfRelease) {
         this.name = name;
@@ -31,12 +33,12 @@ public class Films {
         filmCount++;
     }
 
-    static void addFilm(String name, String genre, String dateOfRelease) {
+    public static void addFilm(String name, String genre, String dateOfRelease) {
         Films.films[Films.filmCount] = new Films(name, genre, dateOfRelease);
         Films.filmCount++;
     }
 
-    static void deleteFilm(int filmIndex) {
+    public static void deleteFilm(int filmIndex) {
         for (int i = filmIndex; i < Films.filmCount - 1; i++) {
             Films.films[i] = Films.films[i + 1];
         }
@@ -45,7 +47,7 @@ public class Films {
         Films.filmCount--;
     }
 
-    static void editFilm(int filmIndex, String name, String genre, String dateOfRelease) {
+    public static void editFilm(int filmIndex, String name, String genre, String dateOfRelease) {
         if (!name.trim().equals("pass")) {
             films[filmIndex].name = name;
         }
@@ -59,7 +61,7 @@ public class Films {
         }
     }
 
-    static Films[] sortFilms(int sortChoice) {
+    public static Films[] sortFilms(int sortChoice) {
         Films[] sortedFilms = Arrays.copyOf(films, filmCount);
 
         if (sortChoice == 1) {
@@ -72,7 +74,7 @@ public class Films {
         return sortedFilms;
     }
 
-    static Films[] filterFilms(String value) {
+    public static Films[] filterFilms(String value) {
         if (filmCount == 0) return films;
 
         int matchCount = 0;

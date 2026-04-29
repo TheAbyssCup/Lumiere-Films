@@ -1,8 +1,11 @@
-import java.util.Scanner;
+package main.logic;
+
+import model.people.Actors;
 
 public class ActorManager {
     private Actors actors = new Actors();
     private PortfolioItem portfolio = new PortfolioItem();
+
     public void showSubMenu()
     {
         actors.initializeActors();

@@ -1,10 +1,12 @@
+package model.people;
+
 import java.util.Scanner;
 
 public class Actors {
     private String[][] actorMembers = new String[100][2];
     private int actorCount = 5;
 
-    void initializeActors() {
+    public void initializeActors() {
         actorMembers[0][0] = "Jeffrey";
         actorMembers[1][0] = "Anna";
         actorMembers[2][0] = "William";

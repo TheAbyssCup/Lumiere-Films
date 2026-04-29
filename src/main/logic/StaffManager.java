@@ -1,3 +1,7 @@
+package main.logic;
+
+import model.people.StaffMember;
+
 import java.util.Scanner;
 
 public class StaffManager {

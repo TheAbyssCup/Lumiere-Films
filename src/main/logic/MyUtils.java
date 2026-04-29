@@ -1,7 +1,9 @@
+package main.logic;
+
 import java.util.Scanner;
 
 public class MyUtils {
-    static int selectChoice(int maxSize)
+    public static int selectChoice(int maxSize)
     {
         Scanner scanner = new Scanner(System.in);
         int choice;

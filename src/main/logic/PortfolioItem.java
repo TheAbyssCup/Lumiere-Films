@@ -1,3 +1,5 @@
+package main.logic;
+
 import java.util.Scanner;
 
 public class PortfolioItem {
