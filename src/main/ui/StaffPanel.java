@@ -1,7 +1,7 @@
 package main.ui;
 
 import main.logic.StaffManager;
-import model.people.StaffMember;
+import model.people.Staff;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -75,9 +75,9 @@ public class StaffPanel extends JPanel {
         refreshTable(manager.getAll());
     }
 
-    private void refreshTable(List<StaffMember> staff) {
+    private void refreshTable(List<Staff> staff) {
         tableModel.setRowCount(0);
-        for (StaffMember s : staff) {
+        for (Staff s : staff) {
             tableModel.addRow(new Object[]{s.getName(), s.getYear(), s.getRole(), String.format("$%.2f", s.getDailyPay())});
         }
         countLabel.setText("Total Staff: " + staff.size());
@@ -114,7 +114,7 @@ public class StaffPanel extends JPanel {
                 int year = Integer.parseInt(yearField.getText());
                 String role = roleField.getText();
                 double pay = Double.parseDouble(payField.getText());
-                manager.add(new StaffMember(name, year, role, pay));
+                manager.add(new Staff(name, year, role, pay));
                 refreshTable(manager.getAll());
             } catch (NumberFormatException e) {
                 JOptionPane.showMessageDialog(this, "Invalid number format!");
@@ -125,7 +125,7 @@ public class StaffPanel extends JPanel {
     private void showEditDialog() {
         int row = table.getSelectedRow();
         if (row == -1) return;
-        StaffMember s = manager.getAll().get(row);
+        Staff s = manager.getAll().get(row);
 
         JTextField nameField = new JTextField(s.getName());
         JTextField yearField = new JTextField(String.valueOf(s.getYear()));

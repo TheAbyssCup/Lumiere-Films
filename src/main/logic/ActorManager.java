@@ -1,11 +1,13 @@
 package main.logic;
 
 import model.people.Actor;
+import model.CRUD;
+import model.FileOperations;
 import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ActorManager implements ICRUDManager<Actor>, IFilePersistence {
+public class ActorManager implements CRUD<Actor>, FileOperations {
     private List<Actor> actors = new ArrayList<>();
 
     public ActorManager() {

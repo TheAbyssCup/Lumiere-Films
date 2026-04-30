@@ -2,10 +2,10 @@ package model.people;
 
 import model.Searchable;
 
-public class StaffMember extends Person implements Searchable {
+public class Staff extends Person implements Searchable {
     private String role;
 
-    public StaffMember(String name, int year, String role, double dailyPay) {
+    public Staff(String name, int year, String role, double dailyPay) {
         super(name, year, dailyPay);
         this.role = role;
     }

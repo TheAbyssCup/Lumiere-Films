@@ -1,11 +1,13 @@
 package main.logic;
 
 import model.media.Film;
+import model.CRUD;
+import model.FileOperations;
 import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class FilmManager implements ICRUDManager<Film>, IFilePersistence {
+public class FilmManager implements CRUD<Film>, FileOperations {
     private List<Film> films = new ArrayList<>();
 
     public FilmManager() {

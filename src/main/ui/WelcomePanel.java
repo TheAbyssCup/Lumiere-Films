@@ -17,7 +17,7 @@ public class WelcomePanel extends JPanel {
         title.setFont(new Font("Arial", Font.BOLD, 32));
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel subtitle = new JLabel("University Project: Production Management System");
+        JLabel subtitle = new JLabel("Film Production System");
         subtitle.setFont(new Font("Arial", Font.ITALIC, 18));
         subtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -25,10 +25,10 @@ public class WelcomePanel extends JPanel {
             "\nLumiere Films is a comprehensive management system designed to streamline \n" +
             "the operations of a film production company.\n\n" +
             "Key Features:\n" +
-            "- Manage your film and commercial database\n" +
+            "- Manage your film database\n" +
             "- Keep track of staff members and cast (actors)\n" +
             "- Search, filter, and sort through records efficiently\n" +
-            "- Calculate production budgets (Coming Soon)\n\n" +
+            "- Calculate budget\n\n" +
             "Use the navigation sidebar on the left to get started!"
         );
         description.setFont(new Font("Arial", Font.PLAIN, 16));
