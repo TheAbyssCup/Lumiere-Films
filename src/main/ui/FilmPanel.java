@@ -27,7 +27,7 @@ public class FilmPanel extends JPanel {
         // Top Search/Filter/Sort Bar
         JPanel topBar = new JPanel(new FlowLayout(FlowLayout.LEFT));
         searchField = new JTextField(12);
-        
+
         JButton searchBtn = new JButton("Search");
         searchBtn.addActionListener(e -> searchFilms());
 
@@ -35,7 +35,7 @@ public class FilmPanel extends JPanel {
         updateFilterOptions();
         genreFilter.addActionListener(e -> filterFilms());
 
-        String[] sorts = {"None", "Name (A-Z)", "Year (Oldest)"};
+        String[] sorts = { "None", "Name (A-Z)", "Year (Oldest)" };
         sortOptions = new JComboBox<>(sorts);
         sortOptions.addActionListener(e -> applySort());
 
@@ -50,17 +50,19 @@ public class FilmPanel extends JPanel {
         add(topBar, BorderLayout.NORTH);
 
         // Table
-        String[] columnNames = {"Title", "Year", "Genre"};
+        String[] columnNames = { "Title", "Year", "Genre" };
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
-            public boolean isCellEditable(int row, int column) { return false; }
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
         };
         table = new JTable(tableModel);
         add(new JScrollPane(table), BorderLayout.CENTER);
 
         // Bottom Panel (Buttons + Count)
         JPanel bottomPanel = new JPanel(new BorderLayout());
-        
+
         countLabel = new JLabel("Total Movies: 0");
         countLabel.setFont(new Font("Arial", Font.BOLD, 14));
         bottomPanel.add(countLabel, BorderLayout.WEST);
@@ -78,7 +80,7 @@ public class FilmPanel extends JPanel {
         buttonPanel.add(editButton);
         buttonPanel.add(deleteButton);
         bottomPanel.add(buttonPanel, BorderLayout.EAST);
-        
+
         add(bottomPanel, BorderLayout.SOUTH);
 
         refreshTable(manager.getAll());
@@ -90,13 +92,14 @@ public class FilmPanel extends JPanel {
         Set<String> genres = manager.getAll().stream()
                 .map(Film::getGenre)
                 .collect(Collectors.toSet());
-        for (String g : genres) genreFilter.addItem(g);
+        for (String g : genres)
+            genreFilter.addItem(g);
     }
 
     private void refreshTable(List<Film> films) {
         tableModel.setRowCount(0);
         for (Film f : films) {
-            tableModel.addRow(new Object[]{f.getTitle(), f.getYear(), f.getGenre()});
+            tableModel.addRow(new Object[] { f.getTitle(), f.getYear(), f.getGenre() });
         }
         countLabel.setText("Total Movies: " + films.size());
     }
@@ -149,7 +152,8 @@ public class FilmPanel extends JPanel {
 
     private void showEditDialog() {
         int row = table.getSelectedRow();
-        if (row == -1) return;
+        if (row == -1)
+            return;
         Film f = manager.getAll().get(row);
 
         JTextField titleField = new JTextField(f.getTitle());
@@ -175,8 +179,10 @@ public class FilmPanel extends JPanel {
 
     private void deleteFilm() {
         int row = table.getSelectedRow();
-        if (row == -1) return;
-        if (JOptionPane.showConfirmDialog(this, "Delete?", "Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+        if (row == -1)
+            return;
+        if (JOptionPane.showConfirmDialog(this, "Delete?", "Confirm",
+                JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
             manager.delete(row);
             updateFilterOptions();
             refreshTable(manager.getAll());

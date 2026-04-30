@@ -62,7 +62,7 @@ public class ActorManager implements ICRUDManager<Actor>, IFilePersistence {
     public void saveToFile(String filename) {
         try (FileWriter writer = new FileWriter(filename)) {
             for (Actor a : actors) {
-                writer.write(a.getName() + "," + a.getYear() + "," + a.getRole() + "," + a.getDailyPay() + "\n");
+                writer.write(a.getName() + "," + a.getYear() + "," + a.getRole() + "," + a.getDailyPay() + "," + a.getFilmTitle() + "\n");
             }
         } catch (IOException e) {
             System.err.println("Error saving actors: " + e.getMessage());
@@ -79,12 +79,13 @@ public class ActorManager implements ICRUDManager<Actor>, IFilePersistence {
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
                 String[] parts = line.split(",");
-                if (parts.length == 4) {
+                if (parts.length == 5) {
                     String name = parts[0];
                     int year = Integer.parseInt(parts[1]);
                     String role = parts[2];
                     double pay = Double.parseDouble(parts[3]);
-                    actors.add(new Actor(name, year, role, pay));
+                    String movie = parts[4];
+                    actors.add(new Actor(name, year, role, pay, movie));
                 }
             }
         } catch (Exception e) {

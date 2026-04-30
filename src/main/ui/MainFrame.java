@@ -41,7 +41,7 @@ public class MainFrame extends JFrame {
         // Panels
         mainContent.add(new WelcomePanel(), "Welcome");
         mainContent.add(new FilmPanel(filmManager), "Movies");
-        mainContent.add(new ActorPanel(actorManager), "Actors");
+        mainContent.add(new ActorPanel(actorManager, filmManager), "Actors");
         mainContent.add(new StaffPanel(staffManager), "Staff");
         mainContent.add(new BudgetPanel(), "Budget");
 

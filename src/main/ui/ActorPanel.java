@@ -1,6 +1,8 @@
 package main.ui;
 
 import main.logic.ActorManager;
+import main.logic.FilmManager;
+import model.media.Film;
 import model.people.Actor;
 
 import javax.swing.*;
@@ -10,14 +12,16 @@ import java.util.List;
 
 public class ActorPanel extends JPanel {
     private ActorManager manager;
+    private FilmManager filmManager;
     private JTable table;
     private DefaultTableModel tableModel;
     private JTextField searchField;
     private JComboBox<String> sortOptions;
     private JLabel countLabel;
 
-    public ActorPanel(ActorManager manager) {
+    public ActorPanel(ActorManager manager, FilmManager filmManager) {
         this.manager = manager;
+        this.filmManager = filmManager;
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
@@ -41,7 +45,7 @@ public class ActorPanel extends JPanel {
         add(topBar, BorderLayout.NORTH);
 
         // Table
-        String[] columnNames = {"Name", "Join Year", "Role", "Daily Pay"};
+        String[] columnNames = {"Name", "Join Year", "Role", "Movie", "Daily Pay"};
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) { return false; }
@@ -78,7 +82,7 @@ public class ActorPanel extends JPanel {
     private void refreshTable(List<Actor> actors) {
         tableModel.setRowCount(0);
         for (Actor a : actors) {
-            tableModel.addRow(new Object[]{a.getName(), a.getYear(), a.getRole(), String.format("$%.2f", a.getDailyPay())});
+            tableModel.addRow(new Object[]{a.getName(), a.getYear(), a.getRole(), a.getFilmTitle(), String.format("$%.2f", a.getDailyPay())});
         }
         countLabel.setText("Total Actors: " + actors.size());
     }
@@ -94,16 +98,33 @@ public class ActorPanel extends JPanel {
         }
     }
 
+    private String[] getMovieTitles() {
+        List<Film> films = filmManager.getAll();
+        String[] titles = new String[films.size()];
+        for (int i = 0; i < films.size(); i++) {
+            titles[i] = films.get(i).getTitle();
+        }
+        return titles;
+    }
+
     private void showAddDialog() {
         JTextField nameField = new JTextField();
         JTextField yearField = new JTextField();
         JTextField roleField = new JTextField();
         JTextField payField = new JTextField("0");
+        
+        String[] movies = getMovieTitles();
+        if (movies.length == 0) {
+            JOptionPane.showMessageDialog(this, "Please add a movie first!");
+            return;
+        }
+        JComboBox<String> movieBox = new JComboBox<>(movies);
 
         Object[] message = { 
             "Name:", nameField, 
             "Join Year:", yearField, 
             "Role:", roleField,
+            "Assigned Movie:", movieBox,
             "Daily Pay ($):", payField
         };
 
@@ -114,7 +135,8 @@ public class ActorPanel extends JPanel {
                 int year = Integer.parseInt(yearField.getText());
                 String role = roleField.getText();
                 double pay = Double.parseDouble(payField.getText());
-                manager.add(new Actor(name, year, role, pay));
+                String movie = (String) movieBox.getSelectedItem();
+                manager.add(new Actor(name, year, role, pay, movie));
                 refreshTable(manager.getAll());
             } catch (NumberFormatException e) {
                 JOptionPane.showMessageDialog(this, "Invalid number format!");
@@ -131,11 +153,16 @@ public class ActorPanel extends JPanel {
         JTextField yearField = new JTextField(String.valueOf(a.getYear()));
         JTextField roleField = new JTextField(a.getRole());
         JTextField payField = new JTextField(String.valueOf(a.getDailyPay()));
+        
+        String[] movies = getMovieTitles();
+        JComboBox<String> movieBox = new JComboBox<>(movies);
+        movieBox.setSelectedItem(a.getFilmTitle());
 
         Object[] message = { 
             "Name:", nameField, 
             "Join Year:", yearField, 
             "Role:", roleField,
+            "Assigned Movie:", movieBox,
             "Daily Pay ($):", payField
         };
 
@@ -145,6 +172,7 @@ public class ActorPanel extends JPanel {
                 a.setName(nameField.getText());
                 a.setRole(roleField.getText());
                 a.setDailyPay(Double.parseDouble(payField.getText()));
+                a.setFilmTitle((String) movieBox.getSelectedItem());
                 manager.update(row, a);
                 refreshTable(manager.getAll());
             } catch (NumberFormatException e) {
