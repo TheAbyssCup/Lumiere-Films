@@ -1,0 +1,8 @@
+Thu Apr 30 23:18:56 GMT+05:00 2026 | TOP UP | $100,10 | Reason: N/A | New Balance: $100,10
+Thu Apr 30 23:19:02 GMT+05:00 2026 | TOP UP | $10,22 | Reason: N/A | New Balance: $110,32
+Thu Apr 30 23:19:19 GMT+05:00 2026 | WITHDRAWAL | $12,00 | Reason: I need to cbut some shoes | New Balance: $98,32
+Thu Apr 30 23:27:48 GMT+05:00 2026 | TOP UP | $1,00 | Reason: N/A | New Balance: $1,00
+Thu Apr 30 23:29:37 GMT+05:00 2026 | TOP UP | $2,00 | Reason: N/A | New Balance: $3,00
+Thu Apr 30 23:30:05 GMT+05:00 2026 | TOP UP | $3,00 | Reason: N/A | New Balance: $6,00
+Thu Apr 30 23:31:18 GMT+05:00 2026 | TOP UP | $47,00 | Reason: N/A | New Balance: $53,00
+Thu Apr 30 23:31:34 GMT+05:00 2026 | WITHDRAWAL | $43,00 | Reason: rfas | New Balance: $10,00

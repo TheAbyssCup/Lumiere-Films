@@ -1,113 +1,154 @@
 package main.ui;
 
+import main.logic.BudgetManager;
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
 
 public class BudgetPanel extends JPanel {
-    private JTextArea resultArea;
+    private BudgetManager manager;
+    private JLabel balanceLabel;
 
     public BudgetPanel() {
-        setLayout(new BorderLayout(10, 10));
-        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        this.manager = new BudgetManager();
+        setLayout(new BorderLayout(20, 20));
+        setBorder(BorderFactory.createEmptyBorder(40, 40, 40, 40));
 
-        JLabel titleLabel = new JLabel("Budget Calculator");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
-        add(titleLabel, BorderLayout.NORTH);
+        // 1. Balance Header
+        JPanel header = new JPanel(new BorderLayout());
+        JLabel title = new JLabel("Project Wallet Balance");
+        title.setFont(new Font("Arial", Font.PLAIN, 18));
+        title.setHorizontalAlignment(SwingConstants.CENTER);
 
-        JPanel buttonPanel = new JPanel(new GridLayout(4, 1, 10, 10));
-        JButton actorBudgetBtn = new JButton("Calculate Actor Budget");
-        JButton productionBudgetBtn = new JButton("Calculate Production Budget");
-        JButton marketingBudgetBtn = new JButton("Calculate Marketing Budget");
-        JButton clearBtn = new JButton("Clear Results");
+        balanceLabel = new JLabel("$" + String.format("%.2f", manager.getBalance()));
+        balanceLabel.setFont(new Font("Arial", Font.BOLD, 48));
+        balanceLabel.setForeground(new Color(0, 102, 204));
+        balanceLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-        actorBudgetBtn.addActionListener(e -> calculateActorBudget());
-        productionBudgetBtn.addActionListener(e -> calculateProductionBudget());
-        marketingBudgetBtn.addActionListener(e -> calculateMarketingBudget());
-        clearBtn.addActionListener(e -> resultArea.setText(""));
+        header.add(title, BorderLayout.NORTH);
+        header.add(balanceLabel, BorderLayout.CENTER);
+        add(header, BorderLayout.NORTH);
 
-        buttonPanel.add(actorBudgetBtn);
-        buttonPanel.add(productionBudgetBtn);
-        buttonPanel.add(marketingBudgetBtn);
-        buttonPanel.add(clearBtn);
+        // 2. Action Buttons (Wrapped to prevent stretching)
+        JPanel gridWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JPanel grid = new JPanel(new GridLayout(2, 2, 15, 15));
+        grid.setPreferredSize(new Dimension(500, 120)); // Set a reasonable fixed size
 
-        add(buttonPanel, BorderLayout.WEST);
+        JButton topUpBtn = new JButton("Top Up Money");
+        JButton withdrawBtn = new JButton("Withdraw Money");
+        JButton monitoringBtn = new JButton("Monitoring (History)");
+        JButton calcBtn = new JButton("Calculate Movie Cost");
 
-        resultArea = new JTextArea();
-        resultArea.setEditable(false);
-        resultArea.setFont(new Font("Monospaced", Font.PLAIN, 14));
-        add(new JScrollPane(resultArea), BorderLayout.CENTER);
+        // Styling
+        Font btnFont = new Font("Arial", Font.BOLD, 16);
+        topUpBtn.setFont(btnFont);
+        withdrawBtn.setFont(btnFont);
+        monitoringBtn.setFont(btnFont);
+        calcBtn.setFont(btnFont);
+
+        // Actions
+        topUpBtn.addActionListener(e -> showTopUpDialog());
+        withdrawBtn.addActionListener(e -> showWithdrawDialog());
+        monitoringBtn.addActionListener(e -> showHistory());
+        calcBtn.addActionListener(e -> showCalculator());
+
+        grid.add(topUpBtn);
+        grid.add(withdrawBtn);
+        grid.add(monitoringBtn);
+        grid.add(calcBtn);
+
+        gridWrapper.add(grid);
+        add(gridWrapper, BorderLayout.CENTER);
     }
 
-    private void calculateActorBudget() {
-        JTextField actorCountField = new JTextField();
-        JTextField avgRateField = new JTextField();
+    private void updateBalanceDisplay() {
+        balanceLabel.setText("$" + String.format("%.2f", manager.getBalance()));
+    }
 
-        Object[] message = {
-            "Number of Actors:", actorCountField,
-            "Average Rate per Actor:", avgRateField
-        };
-
-        int option = JOptionPane.showConfirmDialog(null, message, "Actor Budget Calculation", JOptionPane.OK_CANCEL_OPTION);
-        if (option == JOptionPane.OK_OPTION) {
+    private void showTopUpDialog() {
+        String amountStr = JOptionPane.showInputDialog(this, "Enter amount to top up:");
+        if (amountStr != null) {
             try {
-                int count = Integer.parseInt(actorCountField.getText());
-                double rate = Double.parseDouble(avgRateField.getText());
-                double total = count * rate;
-                resultArea.append(String.format("Actor Budget: %d actors * $%.2f = $%.2f\n", count, rate, total));
+                double amount = Double.parseDouble(amountStr);
+                manager.topUp(amount);
+                updateBalanceDisplay();
             } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "Invalid input! Please enter numbers only.", "Input Error", JOptionPane.ERROR_MESSAGE);
-            } catch (ArithmeticException e) {
-                JOptionPane.showMessageDialog(this, "Mathematical error occurred.", "Math Error", JOptionPane.ERROR_MESSAGE);
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, "An unexpected error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Invalid amount!");
             }
         }
     }
 
-    private void calculateProductionBudget() {
+    private void showWithdrawDialog() {
+        JTextField amountField = new JTextField();
+        JTextField reasonField = new JTextField();
+        Object[] message = { "Amount:", amountField, "Reason/Movie Name:", reasonField };
+
+        int option = JOptionPane.showConfirmDialog(this, message, "Withdraw Money", JOptionPane.OK_CANCEL_OPTION);
+        if (option == JOptionPane.OK_OPTION) {
+            try {
+                double amount = Double.parseDouble(amountField.getText());
+                String reason = reasonField.getText();
+                if (manager.withdraw(amount, reason)) {
+                    updateBalanceDisplay();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Insufficient funds or invalid amount!");
+                }
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Invalid amount!");
+            }
+        }
+    }
+
+    private void showHistory() {
+        List<String> history = manager.getHistory();
+        JTextArea area = new JTextArea(20, 50);
+        area.setEditable(false);
+        area.setFont(new Font("Monospaced", Font.PLAIN, 12));
+
+        if (history.isEmpty()) {
+            area.setText("No transactions found.");
+        } else {
+            for (String line : history) {
+                area.append(line + "\n");
+            }
+        }
+
+        JOptionPane.showMessageDialog(this, new JScrollPane(area), "Transaction History", JOptionPane.PLAIN_MESSAGE);
+    }
+
+    private void showCalculator() {
+        // We reuse the calculator logic we built
         JTextField daysField = new JTextField();
-        JTextField dailyCostField = new JTextField();
+        JTextField crewField = new JTextField("0");
+        JTextField crewPayField = new JTextField("0");
+        JTextField leadPayField = new JTextField("0");
+        JTextField equipField = new JTextField("0");
+        JTextField travelField = new JTextField("0");
 
         Object[] message = {
-            "Shooting Days:", daysField,
-            "Daily Production Cost:", dailyCostField
+                "Filming Days:", daysField,
+                "Crew Count:", crewField,
+                "Crew Daily Pay:", crewPayField,
+                "Lead Actor Pay:", leadPayField,
+                "Equipment Rental:", equipField,
+                "Food & Transport:", travelField
         };
 
-        int option = JOptionPane.showConfirmDialog(null, message, "Production Budget Calculation", JOptionPane.OK_CANCEL_OPTION);
+        int option = JOptionPane.showConfirmDialog(this, message, "Movie Cost Calculator",
+                JOptionPane.OK_CANCEL_OPTION);
         if (option == JOptionPane.OK_OPTION) {
             try {
                 int days = Integer.parseInt(daysField.getText());
-                double daily = Double.parseDouble(dailyCostField.getText());
-                double total = days * daily;
-                resultArea.append(String.format("Production Budget: %d days * $%.2f = $%.2f\n", days, daily, total));
+                int crew = Integer.parseInt(crewField.getText());
+                double cp = Double.parseDouble(crewPayField.getText());
+                double lp = Double.parseDouble(leadPayField.getText());
+                double eq = Double.parseDouble(equipField.getText());
+                double tr = Double.parseDouble(travelField.getText());
+
+                double total = manager.calculateTotal(days, crew, cp, lp, eq, tr);
+                JOptionPane.showMessageDialog(this, String.format("Estimated Movie Cost: $%.2f", total));
             } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "Please enter valid numeric values for days and cost.", "Format Error", JOptionPane.ERROR_MESSAGE);
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        }
-    }
-
-    private void calculateMarketingBudget() {
-        JTextField adsField = new JTextField();
-        JTextField eventsField = new JTextField();
-
-        Object[] message = {
-            "Advertising Budget:", adsField,
-            "Event/Premiere Budget:", eventsField
-        };
-
-        int option = JOptionPane.showConfirmDialog(null, message, "Marketing Budget Calculation", JOptionPane.OK_CANCEL_OPTION);
-        if (option == JOptionPane.OK_OPTION) {
-            try {
-                double ads = Double.parseDouble(adsField.getText());
-                double events = Double.parseDouble(eventsField.getText());
-                double total = ads + events;
-                resultArea.append(String.format("Marketing Budget: Ads($%.2f) + Events($%.2f) = $%.2f\n", ads, events, total));
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "Invalid currency format.", "Format Error", JOptionPane.ERROR_MESSAGE);
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Please enter valid numbers!");
             }
         }
     }

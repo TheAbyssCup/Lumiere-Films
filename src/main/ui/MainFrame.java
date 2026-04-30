@@ -43,7 +43,7 @@ public class MainFrame extends JFrame {
         mainContent.add(new FilmPanel(filmManager), "Movies");
         mainContent.add(new ActorPanel(actorManager), "Actors");
         mainContent.add(new StaffPanel(staffManager), "Staff");
-        mainContent.add(new JPanel(), "Budget");
+        mainContent.add(new BudgetPanel(), "Budget");
 
         rightSideContainer.add(mainContent, BorderLayout.CENTER);
 
