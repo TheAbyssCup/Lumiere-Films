@@ -4,18 +4,30 @@ import javax.swing.*;
 import java.awt.*;
 
 public class SidebarPanel extends JPanel {
+    private MainFrame mainFrame;
+
     public SidebarPanel(MainFrame mainFrame) {
-        setLayout(new GridLayout(10, 1, 5, 5));
-        setPreferredSize(new Dimension(200, 0));
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        this.mainFrame = mainFrame;
+        setLayout(new GridLayout(6, 1, 5, 5));
+        setPreferredSize(new Dimension(150, 0));
+        setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Color.LIGHT_GRAY));
 
-        String[] menuItems = {"Staff", "Actors", "Movies", "Budget"};
+        JButton homeBtn = new JButton("Home");
+        JButton staffBtn = new JButton("Staff");
+        JButton actorBtn = new JButton("Actors");
+        JButton filmBtn = new JButton("Movies");
+        JButton budgetBtn = new JButton("Budget");
 
-        for (String item : menuItems) {
-            JButton button = new JButton(item);
-            button.setFocusPainted(false);
-            button.addActionListener(e -> mainFrame.showPanel(item));
-            add(button);
-        }
+        homeBtn.addActionListener(e -> mainFrame.showPanel("Welcome"));
+        staffBtn.addActionListener(e -> mainFrame.showPanel("Staff"));
+        actorBtn.addActionListener(e -> mainFrame.showPanel("Actors"));
+        filmBtn.addActionListener(e -> mainFrame.showPanel("Movies"));
+        budgetBtn.addActionListener(e -> mainFrame.showPanel("Budget"));
+
+        add(homeBtn);
+        add(staffBtn);
+        add(actorBtn);
+        add(filmBtn);
+        add(budgetBtn);
     }
 }
