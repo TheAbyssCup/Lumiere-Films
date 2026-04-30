@@ -1,15 +1,12 @@
 package model.people;
 
-public class Actor extends Person {
+import model.Searchable;
+
+public class Actor extends Person implements Searchable {
     private String role; // e.g. stunt performer, voice actor
 
-    public Actor(String name, String role) {
-        super(name);
-        this.role = role;
-    }
-
-    public Actor(String name, int id, String role) {
-        super(name, id);
+    public Actor(String name, int year, String role) {
+        super(name, year);
         this.role = role;
     }
 
@@ -27,6 +24,12 @@ public class Actor extends Person {
 
     @Override
     public void displayInfo() {
-        System.out.println("Actor ID: " + id + ", Name: " + name + ", Role: " + role);
+        System.out.println("Actor: " + name + ", Role: " + role + " (Joined: " + year + ")");
+    }
+
+    @Override
+    public boolean contains(String query) {
+        String q = query.toLowerCase();
+        return name.toLowerCase().contains(q) || role.toLowerCase().contains(q);
     }
 }

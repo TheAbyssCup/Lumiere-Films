@@ -1,4 +1,5 @@
 package model;
 
-public class Searchable {
+public interface Searchable {
+    boolean contains(String query);
 }

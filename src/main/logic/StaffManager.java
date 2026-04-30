@@ -3,6 +3,7 @@ package main.logic;
 import model.people.StaffMember;
 import java.io.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class StaffManager implements ICRUDManager<StaffMember>, IFilePersistence {
     private List<StaffMember> staff = new ArrayList<>();
@@ -38,11 +39,30 @@ public class StaffManager implements ICRUDManager<StaffMember>, IFilePersistence
         return staff;
     }
 
+    public List<StaffMember> getSortedByYear() {
+        List<StaffMember> sorted = new ArrayList<>(staff);
+        sorted.sort(Comparator.comparingInt(StaffMember::getYear));
+        return sorted;
+    }
+
+    public List<StaffMember> getSortedByName() {
+        List<StaffMember> sorted = new ArrayList<>(staff);
+        sorted.sort(Comparator.comparing(StaffMember::getName, String.CASE_INSENSITIVE_ORDER));
+        return sorted;
+    }
+
+    public List<StaffMember> search(String query) {
+        if (query == null || query.isEmpty()) return staff;
+        return staff.stream()
+                .filter(s -> s.contains(query))
+                .collect(Collectors.toList());
+    }
+
     @Override
     public void saveToFile(String filename) {
         try (FileWriter writer = new FileWriter(filename)) {
             for (StaffMember s : staff) {
-                writer.write(s.getId() + "," + s.getName() + "," + s.getRole() + "\n");
+                writer.write(s.getName() + "," + s.getYear() + "," + s.getRole() + "\n");
             }
         } catch (IOException e) {
             System.err.println("Error saving staff: " + e.getMessage());
@@ -60,16 +80,16 @@ public class StaffManager implements ICRUDManager<StaffMember>, IFilePersistence
                 String line = scanner.nextLine();
                 String[] parts = line.split(",");
                 if (parts.length == 3) {
-                    int id = Integer.parseInt(parts[0]);
-                    String name = parts[1];
+                    String name = parts[0];
+                    int year = Integer.parseInt(parts[1]);
                     String role = parts[2];
-                    staff.add(new StaffMember(name, id, role));
+                    staff.add(new StaffMember(name, year, role));
                 }
             }
         } catch (FileNotFoundException e) {
             System.err.println("File not found: " + filename);
         } catch (NumberFormatException e) {
-            System.err.println("Error parsing ID in file: " + filename);
+            System.err.println("Error parsing data in file: " + filename);
         } catch (Exception e) {
             System.err.println("An unexpected error occurred while loading staff: " + e.getMessage());
         }

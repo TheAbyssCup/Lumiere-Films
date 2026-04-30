@@ -7,33 +7,64 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class FilmPanel extends JPanel {
     private FilmManager manager;
     private JTable table;
     private DefaultTableModel tableModel;
+    private JTextField searchField;
+    private JComboBox<String> genreFilter;
+    private JComboBox<String> sortOptions;
+    private JLabel countLabel;
 
     public FilmPanel(FilmManager manager) {
         this.manager = manager;
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        JLabel titleLabel = new JLabel("Film Catalogue");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
-        add(titleLabel, BorderLayout.NORTH);
+        // Top Search/Filter/Sort Bar
+        JPanel topBar = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        searchField = new JTextField(12);
+        
+        JButton searchBtn = new JButton("Search");
+        searchBtn.addActionListener(e -> searchFilms());
+
+        genreFilter = new JComboBox<>();
+        updateFilterOptions();
+        genreFilter.addActionListener(e -> filterFilms());
+
+        String[] sorts = {"None", "Name (A-Z)", "Year (Oldest)"};
+        sortOptions = new JComboBox<>(sorts);
+        sortOptions.addActionListener(e -> applySort());
+
+        topBar.add(new JLabel("Search:"));
+        topBar.add(searchField);
+        topBar.add(searchBtn);
+        topBar.add(new JLabel(" Filter:"));
+        topBar.add(genreFilter);
+        topBar.add(new JLabel(" Sort:"));
+        topBar.add(sortOptions);
+
+        add(topBar, BorderLayout.NORTH);
 
         // Table
         String[] columnNames = {"Title", "Year", "Genre"};
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
+            public boolean isCellEditable(int row, int column) { return false; }
         };
         table = new JTable(tableModel);
         add(new JScrollPane(table), BorderLayout.CENTER);
 
-        // Buttons
+        // Bottom Panel (Buttons + Count)
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        
+        countLabel = new JLabel("Total Movies: 0");
+        countLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        bottomPanel.add(countLabel, BorderLayout.WEST);
+
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton addButton = new JButton("Add Film");
         JButton editButton = new JButton("Edit Film");
@@ -46,16 +77,51 @@ public class FilmPanel extends JPanel {
         buttonPanel.add(addButton);
         buttonPanel.add(editButton);
         buttonPanel.add(deleteButton);
-        add(buttonPanel, BorderLayout.SOUTH);
+        bottomPanel.add(buttonPanel, BorderLayout.EAST);
+        
+        add(bottomPanel, BorderLayout.SOUTH);
 
-        refreshTable();
+        refreshTable(manager.getAll());
     }
 
-    private void refreshTable() {
+    private void updateFilterOptions() {
+        genreFilter.removeAllItems();
+        genreFilter.addItem("All Genres");
+        Set<String> genres = manager.getAll().stream()
+                .map(Film::getGenre)
+                .collect(Collectors.toSet());
+        for (String g : genres) genreFilter.addItem(g);
+    }
+
+    private void refreshTable(List<Film> films) {
         tableModel.setRowCount(0);
-        List<Film> films = manager.getAll();
         for (Film f : films) {
             tableModel.addRow(new Object[]{f.getTitle(), f.getYear(), f.getGenre()});
+        }
+        countLabel.setText("Total Movies: " + films.size());
+    }
+
+    private void searchFilms() {
+        refreshTable(manager.search(searchField.getText()));
+    }
+
+    private void filterFilms() {
+        String genre = (String) genreFilter.getSelectedItem();
+        if (genre == null || genre.equals("All Genres")) {
+            refreshTable(manager.getAll());
+        } else {
+            refreshTable(manager.filterByGenre(genre));
+        }
+    }
+
+    private void applySort() {
+        String selected = (String) sortOptions.getSelectedItem();
+        if (selected.equals("Name (A-Z)")) {
+            refreshTable(manager.getSortedByName());
+        } else if (selected.equals("Year (Oldest)")) {
+            refreshTable(manager.getSortedByYear());
+        } else {
+            refreshTable(manager.getAll());
         }
     }
 
@@ -64,11 +130,7 @@ public class FilmPanel extends JPanel {
         JTextField yearField = new JTextField();
         JTextField genreField = new JTextField();
 
-        Object[] message = {
-            "Title:", titleField,
-            "Year:", yearField,
-            "Genre:", genreField
-        };
+        Object[] message = { "Title:", titleField, "Year:", yearField, "Genre:", genreField };
 
         int option = JOptionPane.showConfirmDialog(null, message, "Add New Film", JOptionPane.OK_CANCEL_OPTION);
         if (option == JOptionPane.OK_OPTION) {
@@ -77,57 +139,47 @@ public class FilmPanel extends JPanel {
                 int year = Integer.parseInt(yearField.getText());
                 String genre = genreField.getText();
                 manager.add(new Film(title, year, genre));
-                refreshTable();
+                updateFilterOptions();
+                refreshTable(manager.getAll());
             } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "Invalid year format!", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Invalid year!");
             }
         }
     }
 
     private void showEditDialog() {
-        int selectedRow = table.getSelectedRow();
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Please select a film to edit.");
-            return;
-        }
+        int row = table.getSelectedRow();
+        if (row == -1) return;
+        Film f = manager.getAll().get(row);
 
-        Film selectedFilm = manager.getAll().get(selectedRow);
+        JTextField titleField = new JTextField(f.getTitle());
+        JTextField yearField = new JTextField(String.valueOf(f.getYear()));
+        JTextField genreField = new JTextField(f.getGenre());
 
-        JTextField titleField = new JTextField(selectedFilm.getTitle());
-        JTextField yearField = new JTextField(String.valueOf(selectedFilm.getYear()));
-        JTextField genreField = new JTextField(selectedFilm.getGenre());
-
-        Object[] message = {
-            "Title:", titleField,
-            "Year:", yearField,
-            "Genre:", genreField
-        };
+        Object[] message = { "Title:", titleField, "Year:", yearField, "Genre:", genreField };
 
         int option = JOptionPane.showConfirmDialog(null, message, "Edit Film", JOptionPane.OK_CANCEL_OPTION);
         if (option == JOptionPane.OK_OPTION) {
             try {
-                selectedFilm.setTitle(titleField.getText());
-                selectedFilm.setYear(Integer.parseInt(yearField.getText()));
-                selectedFilm.setGenre(genreField.getText());
-                manager.update(selectedRow, selectedFilm);
-                refreshTable();
+                f.setTitle(titleField.getText());
+                f.setYear(Integer.parseInt(yearField.getText()));
+                f.setGenre(genreField.getText());
+                manager.update(row, f);
+                updateFilterOptions();
+                refreshTable(manager.getAll());
             } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "Invalid year format!", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Invalid year!");
             }
         }
     }
 
     private void deleteFilm() {
-        int selectedRow = table.getSelectedRow();
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Please select a film to delete.");
-            return;
-        }
-
-        int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this film?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
-        if (confirm == JOptionPane.YES_OPTION) {
-            manager.delete(selectedRow);
-            refreshTable();
+        int row = table.getSelectedRow();
+        if (row == -1) return;
+        if (JOptionPane.showConfirmDialog(this, "Delete?", "Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+            manager.delete(row);
+            updateFilterOptions();
+            refreshTable(manager.getAll());
         }
     }
 }

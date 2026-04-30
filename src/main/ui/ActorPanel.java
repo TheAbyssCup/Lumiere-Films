@@ -12,28 +12,50 @@ public class ActorPanel extends JPanel {
     private ActorManager manager;
     private JTable table;
     private DefaultTableModel tableModel;
+    private JTextField searchField;
+    private JComboBox<String> sortOptions;
+    private JLabel countLabel;
 
     public ActorPanel(ActorManager manager) {
         this.manager = manager;
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        JLabel titleLabel = new JLabel("Actor Registry");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
-        add(titleLabel, BorderLayout.NORTH);
+        // Top Search/Sort Bar
+        JPanel topBar = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        searchField = new JTextField(15);
+        
+        JButton searchBtn = new JButton("Search");
+        searchBtn.addActionListener(e -> refreshTable(manager.search(searchField.getText())));
 
-        // Table
-        String[] columnNames = {"ID", "Name", "Role"};
+        String[] sorts = {"None", "Name (A-Z)", "Date (Oldest)"};
+        sortOptions = new JComboBox<>(sorts);
+        sortOptions.addActionListener(e -> applySort());
+
+        topBar.add(new JLabel("Search:"));
+        topBar.add(searchField);
+        topBar.add(searchBtn);
+        topBar.add(new JLabel(" Sort:"));
+        topBar.add(sortOptions);
+
+        add(topBar, BorderLayout.NORTH);
+
+        // Table (No ID column)
+        String[] columnNames = {"Name", "Join Year", "Role"};
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
+            public boolean isCellEditable(int row, int column) { return false; }
         };
         table = new JTable(tableModel);
         add(new JScrollPane(table), BorderLayout.CENTER);
 
-        // Buttons
+        // Bottom Panel
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        
+        countLabel = new JLabel("Total Actors: 0");
+        countLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        bottomPanel.add(countLabel, BorderLayout.WEST);
+
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton addButton = new JButton("Add Actor");
         JButton editButton = new JButton("Edit Actor");
@@ -46,76 +68,83 @@ public class ActorPanel extends JPanel {
         buttonPanel.add(addButton);
         buttonPanel.add(editButton);
         buttonPanel.add(deleteButton);
-        add(buttonPanel, BorderLayout.SOUTH);
+        bottomPanel.add(buttonPanel, BorderLayout.EAST);
+        
+        add(bottomPanel, BorderLayout.SOUTH);
 
-        refreshTable();
+        refreshTable(manager.getAll());
     }
 
-    private void refreshTable() {
+    private void refreshTable(List<Actor> actors) {
         tableModel.setRowCount(0);
-        List<Actor> actors = manager.getAll();
         for (Actor a : actors) {
-            tableModel.addRow(new Object[]{a.getId(), a.getName(), a.getRole()});
+            tableModel.addRow(new Object[]{a.getName(), a.getYear(), a.getRole()});
+        }
+        countLabel.setText("Total Actors: " + actors.size());
+    }
+
+    private void applySort() {
+        String selected = (String) sortOptions.getSelectedItem();
+        if (selected.equals("Name (A-Z)")) {
+            refreshTable(manager.getSortedByName());
+        } else if (selected.equals("Date (Oldest)")) {
+            refreshTable(manager.getSortedByYear());
+        } else {
+            refreshTable(manager.getAll());
         }
     }
 
     private void showAddDialog() {
         JTextField nameField = new JTextField();
+        JTextField yearField = new JTextField();
         JTextField roleField = new JTextField();
 
-        Object[] message = {
-            "Name:", nameField,
-            "Role:", roleField
-        };
+        Object[] message = { "Name:", nameField, "Join Year:", yearField, "Role:", roleField };
 
         int option = JOptionPane.showConfirmDialog(null, message, "Add New Actor", JOptionPane.OK_CANCEL_OPTION);
         if (option == JOptionPane.OK_OPTION) {
-            String name = nameField.getText();
-            String role = roleField.getText();
-            if (!name.isEmpty()) {
-                manager.add(new Actor(name, role));
-                refreshTable();
+            try {
+                String name = nameField.getText();
+                int year = Integer.parseInt(yearField.getText());
+                String role = roleField.getText();
+                manager.add(new Actor(name, year, role));
+                refreshTable(manager.getAll());
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Invalid year!");
             }
         }
     }
 
     private void showEditDialog() {
-        int selectedRow = table.getSelectedRow();
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Please select an actor to edit.");
-            return;
-        }
+        int row = table.getSelectedRow();
+        if (row == -1) return;
+        Actor a = manager.getAll().get(row);
 
-        Actor selectedActor = manager.getAll().get(selectedRow);
+        JTextField nameField = new JTextField(a.getName());
+        JTextField yearField = new JTextField(String.valueOf(a.getYear()));
+        JTextField roleField = new JTextField(a.getRole());
 
-        JTextField nameField = new JTextField(selectedActor.getName());
-        JTextField roleField = new JTextField(selectedActor.getRole());
-
-        Object[] message = {
-            "Name:", nameField,
-            "Role:", roleField
-        };
+        Object[] message = { "Name:", nameField, "Join Year:", yearField, "Role:", roleField };
 
         int option = JOptionPane.showConfirmDialog(null, message, "Edit Actor", JOptionPane.OK_CANCEL_OPTION);
         if (option == JOptionPane.OK_OPTION) {
-            selectedActor.setName(nameField.getText());
-            selectedActor.setRole(roleField.getText());
-            manager.update(selectedRow, selectedActor);
-            refreshTable();
+            try {
+                a.setName(nameField.getText());
+                a.setRole(roleField.getText());
+                manager.update(row, a);
+                refreshTable(manager.getAll());
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Invalid year!");
+            }
         }
     }
 
     private void deleteActor() {
-        int selectedRow = table.getSelectedRow();
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Please select an actor to delete.");
-            return;
-        }
-
-        int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this actor?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
-        if (confirm == JOptionPane.YES_OPTION) {
-            manager.delete(selectedRow);
-            refreshTable();
+        int row = table.getSelectedRow();
+        if (row == -1) return;
+        if (JOptionPane.showConfirmDialog(this, "Delete?", "Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+            manager.delete(row);
+            refreshTable(manager.getAll());
         }
     }
 }

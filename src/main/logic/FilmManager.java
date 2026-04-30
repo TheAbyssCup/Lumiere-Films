@@ -3,6 +3,7 @@ package main.logic;
 import model.media.Film;
 import java.io.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class FilmManager implements ICRUDManager<Film>, IFilePersistence {
     private List<Film> films = new ArrayList<>();
@@ -38,26 +39,34 @@ public class FilmManager implements ICRUDManager<Film>, IFilePersistence {
         return films;
     }
 
-    // Method Overloading: Search by Title
-    public List<Film> search(String title) {
-        List<Film> results = new ArrayList<>();
-        for (Film f : films) {
-            if (f.getTitle().toLowerCase().contains(title.toLowerCase())) {
-                results.add(f);
-            }
-        }
-        return results;
+    // Sorting logic - Chronological
+    public List<Film> getSortedByYear() {
+        List<Film> sorted = new ArrayList<>(films);
+        sorted.sort(Comparator.comparingInt(Film::getYear));
+        return sorted;
     }
 
-    // Method Overloading: Search by Year
-    public List<Film> search(int year) {
-        List<Film> results = new ArrayList<>();
-        for (Film f : films) {
-            if (f.getYear() == year) {
-                results.add(f);
-            }
-        }
-        return results;
+    // Sorting logic - Alphabetical
+    public List<Film> getSortedByName() {
+        List<Film> sorted = new ArrayList<>(films);
+        sorted.sort(Comparator.comparing(Film::getTitle, String.CASE_INSENSITIVE_ORDER));
+        return sorted;
+    }
+
+    // Filtering logic
+    public List<Film> filterByGenre(String genre) {
+        if (genre == null || genre.isEmpty() || genre.equals("All")) return films;
+        return films.stream()
+                .filter(f -> f.getGenre().equalsIgnoreCase(genre))
+                .collect(Collectors.toList());
+    }
+
+    // Searching logic
+    public List<Film> search(String query) {
+        if (query == null || query.isEmpty()) return films;
+        return films.stream()
+                .filter(f -> f.contains(query))
+                .collect(Collectors.toList());
     }
 
     @Override

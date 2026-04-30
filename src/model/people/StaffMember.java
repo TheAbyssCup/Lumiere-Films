@@ -1,15 +1,12 @@
 package model.people;
 
-public class StaffMember extends Person {
+import model.Searchable;
+
+public class StaffMember extends Person implements Searchable {
     private String role;
 
-    public StaffMember(String name, String role) {
-        super(name);
-        this.role = role;
-    }
-
-    public StaffMember(String name, int id, String role) {
-        super(name, id);
+    public StaffMember(String name, int year, String role) {
+        super(name, year);
         this.role = role;
     }
 
@@ -27,6 +24,12 @@ public class StaffMember extends Person {
 
     @Override
     public void displayInfo() {
-        System.out.println("Staff ID: " + id + ", Name: " + name + ", Role: " + role);
+        System.out.println("Staff Member: " + name + ", Role: " + role + " (Joined: " + year + ")");
+    }
+
+    @Override
+    public boolean contains(String query) {
+        String q = query.toLowerCase();
+        return name.toLowerCase().contains(q) || role.toLowerCase().contains(q);
     }
 }

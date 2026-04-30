@@ -1,6 +1,8 @@
 package model.media;
 
-public class Film extends Media {
+import model.Searchable;
+
+public class Film extends Media implements Searchable {
     private String genre;
 
     public Film(String title, int year, String genre) {
@@ -27,5 +29,11 @@ public class Film extends Media {
     @Override
     public void displayInfo() {
         System.out.println("Film: " + title + " (" + year + "), Genre: " + genre);
+    }
+
+    @Override
+    public boolean contains(String query) {
+        String q = query.toLowerCase();
+        return title.toLowerCase().contains(q) || genre.toLowerCase().contains(q);
     }
 }
