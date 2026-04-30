@@ -1,72 +1,77 @@
 package main.logic;
 
-import model.people.Actors;
+import model.people.Actor;
+import java.io.*;
+import java.util.*;
 
-public class ActorManager {
-    private Actors actors = new Actors();
-    private PortfolioItem portfolio = new PortfolioItem();
+public class ActorManager implements ICRUDManager<Actor>, IFilePersistence {
+    private List<Actor> actors = new ArrayList<>();
 
-    public void showSubMenu()
-    {
-        actors.initializeActors();
-        do {
-            System.out.println("———————————————————"+"\n\tCasting / Actors submenu:");
-            System.out.println("1. View All Actors");
-            System.out.println("2. Add Actor");
-            System.out.println("3. Manage Actor Portfolio");
-            System.out.println("4. Back to Main Menu");
-            System.out.print("———————————————————");
-        } while (selectSubMenu());
+    public ActorManager() {
+        loadFromFile("src/db/Actors.txt");
     }
-    boolean selectSubMenu()
-    {
-        switch (MyUtils.selectChoice(4))
-        {
-            case 1:
-                actors.viewActors();
-                break;
-            case 2:
-                actors.addActor();
-                break;
-            case 3:
-                showPortfolioMenu();
-                break;
-            case 4:
-                return false;
+
+    @Override
+    public void add(Actor item) {
+        actors.add(item);
+        saveToFile("src/db/Actors.txt");
+    }
+
+    @Override
+    public void update(int index, Actor item) {
+        if (index >= 0 && index < actors.size()) {
+            actors.set(index, item);
+            saveToFile("src/db/Actors.txt");
         }
-        return true;
     }
-    public void showPortfolioMenu() {
-        do {
-            System.out.println("———————————————————"+"\n\tManage Portfolio Items:");
-            System.out.println("1. List All Portfolio Items");
-            System.out.println("2. Add Portfolio Item");
-            System.out.println("3. Remove Portfolio Item");
-            System.out.println("4. Back to Casting / Actors Submenu");
-            System.out.print("———————————————————");
-        } while (selectPortfolioMenu());
-    }
-    boolean selectPortfolioMenu()
-    {
-        switch (MyUtils.selectChoice(4))
-        {
-            case 1:
-                portfolio.listPortfolioItems(askActorNum());
-                break;
-            case 2:
-                portfolio.addPortfolioItems(askActorNum());
-                break;
-            case 3:
-                portfolio.removePortfolioItems(askActorNum());
-                break;
-            case 4:
-                return false;
+
+    @Override
+    public void delete(int index) {
+        if (index >= 0 && index < actors.size()) {
+            actors.remove(index);
+            saveToFile("src/db/Actors.txt");
         }
-        return true;
     }
-    int askActorNum() {
-        System.out.println("Please enter actor number: ");
-        actors.viewActors();
-        return MyUtils.selectChoice(actors.getActorCount());
+
+    @Override
+    public List<Actor> getAll() {
+        return actors;
+    }
+
+    @Override
+    public void saveToFile(String filename) {
+        try (FileWriter writer = new FileWriter(filename)) {
+            for (Actor a : actors) {
+                writer.write(a.getId() + "," + a.getName() + "," + a.getRole() + "\n");
+            }
+        } catch (IOException e) {
+            System.err.println("Error saving actors: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void loadFromFile(String filename) {
+        File file = new File(filename);
+        if (!file.exists()) return;
+
+        actors.clear();
+        try (Scanner scanner = new Scanner(file)) {
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                String[] parts = line.split(",");
+                if (parts.length == 3) {
+                    int id = Integer.parseInt(parts[0]);
+                    String name = parts[1];
+                    String role = parts[2];
+                    actors.add(new Actor(name, id, role));
+                }
+            }
+        } catch (FileNotFoundException e) {
+            System.err.println("File not found: " + filename);
+        } catch (NumberFormatException e) {
+            System.err.println("Error parsing ID in file: " + filename);
+        } catch (Exception e) {
+            System.err.println("An unexpected error occurred while loading actors: " + e.getMessage());
+        }
     }
 }

@@ -1,14 +1,14 @@
 package model.people;
 
-public class StaffMember extends Person {
-    private String role;
+public class Actor extends Person {
+    private String role; // e.g. stunt performer, voice actor
 
-    public StaffMember(String name, String role) {
+    public Actor(String name, String role) {
         super(name);
         this.role = role;
     }
 
-    public StaffMember(String name, int id, String role) {
+    public Actor(String name, int id, String role) {
         super(name, id);
         this.role = role;
     }
@@ -27,6 +27,6 @@ public class StaffMember extends Person {
 
     @Override
     public void displayInfo() {
-        System.out.println("Staff ID: " + id + ", Name: " + name + ", Role: " + role);
+        System.out.println("Actor ID: " + id + ", Name: " + name + ", Role: " + role);
     }
 }
