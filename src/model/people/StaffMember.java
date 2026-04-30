@@ -5,8 +5,8 @@ import model.Searchable;
 public class StaffMember extends Person implements Searchable {
     private String role;
 
-    public StaffMember(String name, int year, String role) {
-        super(name, year);
+    public StaffMember(String name, int year, String role, double dailyPay) {
+        super(name, year, dailyPay);
         this.role = role;
     }
 
@@ -24,7 +24,7 @@ public class StaffMember extends Person implements Searchable {
 
     @Override
     public void displayInfo() {
-        System.out.println("Staff Member: " + name + ", Role: " + role + " (Joined: " + year + ")");
+        System.out.println("Staff Member: " + name + ", Role: " + role + " (Joined: " + year + ", Pay: $" + dailyPay + ")");
     }
 
     @Override

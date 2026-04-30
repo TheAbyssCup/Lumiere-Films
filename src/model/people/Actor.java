@@ -5,8 +5,8 @@ import model.Searchable;
 public class Actor extends Person implements Searchable {
     private String role; // e.g. stunt performer, voice actor
 
-    public Actor(String name, int year, String role) {
-        super(name, year);
+    public Actor(String name, int year, String role, double dailyPay) {
+        super(name, year, dailyPay);
         this.role = role;
     }
 
@@ -24,7 +24,7 @@ public class Actor extends Person implements Searchable {
 
     @Override
     public void displayInfo() {
-        System.out.println("Actor: " + name + ", Role: " + role + " (Joined: " + year + ")");
+        System.out.println("Actor: " + name + ", Role: " + role + " (Joined: " + year + ", Pay: $" + dailyPay + ")");
     }
 
     @Override

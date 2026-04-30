@@ -62,7 +62,7 @@ public class StaffManager implements ICRUDManager<StaffMember>, IFilePersistence
     public void saveToFile(String filename) {
         try (FileWriter writer = new FileWriter(filename)) {
             for (StaffMember s : staff) {
-                writer.write(s.getName() + "," + s.getYear() + "," + s.getRole() + "\n");
+                writer.write(s.getName() + "," + s.getYear() + "," + s.getRole() + "," + s.getDailyPay() + "\n");
             }
         } catch (IOException e) {
             System.err.println("Error saving staff: " + e.getMessage());
@@ -79,19 +79,16 @@ public class StaffManager implements ICRUDManager<StaffMember>, IFilePersistence
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
                 String[] parts = line.split(",");
-                if (parts.length == 3) {
+                if (parts.length == 4) {
                     String name = parts[0];
                     int year = Integer.parseInt(parts[1]);
                     String role = parts[2];
-                    staff.add(new StaffMember(name, year, role));
+                    double pay = Double.parseDouble(parts[3]);
+                    staff.add(new StaffMember(name, year, role, pay));
                 }
             }
-        } catch (FileNotFoundException e) {
-            System.err.println("File not found: " + filename);
-        } catch (NumberFormatException e) {
-            System.err.println("Error parsing data in file: " + filename);
         } catch (Exception e) {
-            System.err.println("An unexpected error occurred while loading staff: " + e.getMessage());
+            System.err.println("Error loading staff: " + e.getMessage());
         }
     }
 }

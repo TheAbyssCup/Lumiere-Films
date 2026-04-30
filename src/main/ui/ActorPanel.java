@@ -40,8 +40,8 @@ public class ActorPanel extends JPanel {
 
         add(topBar, BorderLayout.NORTH);
 
-        // Table (No ID column)
-        String[] columnNames = {"Name", "Join Year", "Role"};
+        // Table
+        String[] columnNames = {"Name", "Join Year", "Role", "Daily Pay"};
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) { return false; }
@@ -78,7 +78,7 @@ public class ActorPanel extends JPanel {
     private void refreshTable(List<Actor> actors) {
         tableModel.setRowCount(0);
         for (Actor a : actors) {
-            tableModel.addRow(new Object[]{a.getName(), a.getYear(), a.getRole()});
+            tableModel.addRow(new Object[]{a.getName(), a.getYear(), a.getRole(), String.format("$%.2f", a.getDailyPay())});
         }
         countLabel.setText("Total Actors: " + actors.size());
     }
@@ -98,8 +98,14 @@ public class ActorPanel extends JPanel {
         JTextField nameField = new JTextField();
         JTextField yearField = new JTextField();
         JTextField roleField = new JTextField();
+        JTextField payField = new JTextField("0");
 
-        Object[] message = { "Name:", nameField, "Join Year:", yearField, "Role:", roleField };
+        Object[] message = { 
+            "Name:", nameField, 
+            "Join Year:", yearField, 
+            "Role:", roleField,
+            "Daily Pay ($):", payField
+        };
 
         int option = JOptionPane.showConfirmDialog(null, message, "Add New Actor", JOptionPane.OK_CANCEL_OPTION);
         if (option == JOptionPane.OK_OPTION) {
@@ -107,10 +113,11 @@ public class ActorPanel extends JPanel {
                 String name = nameField.getText();
                 int year = Integer.parseInt(yearField.getText());
                 String role = roleField.getText();
-                manager.add(new Actor(name, year, role));
+                double pay = Double.parseDouble(payField.getText());
+                manager.add(new Actor(name, year, role, pay));
                 refreshTable(manager.getAll());
             } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "Invalid year!");
+                JOptionPane.showMessageDialog(this, "Invalid number format!");
             }
         }
     }
@@ -123,18 +130,25 @@ public class ActorPanel extends JPanel {
         JTextField nameField = new JTextField(a.getName());
         JTextField yearField = new JTextField(String.valueOf(a.getYear()));
         JTextField roleField = new JTextField(a.getRole());
+        JTextField payField = new JTextField(String.valueOf(a.getDailyPay()));
 
-        Object[] message = { "Name:", nameField, "Join Year:", yearField, "Role:", roleField };
+        Object[] message = { 
+            "Name:", nameField, 
+            "Join Year:", yearField, 
+            "Role:", roleField,
+            "Daily Pay ($):", payField
+        };
 
         int option = JOptionPane.showConfirmDialog(null, message, "Edit Actor", JOptionPane.OK_CANCEL_OPTION);
         if (option == JOptionPane.OK_OPTION) {
             try {
                 a.setName(nameField.getText());
                 a.setRole(roleField.getText());
+                a.setDailyPay(Double.parseDouble(payField.getText()));
                 manager.update(row, a);
                 refreshTable(manager.getAll());
             } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "Invalid year!");
+                JOptionPane.showMessageDialog(this, "Invalid number format!");
             }
         }
     }
